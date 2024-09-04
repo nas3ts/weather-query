@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherQuery</title>
+    <link rel="icon" href="https://img.icons8.com/fluency/48/weather.png" type="image/png">
+    
+    <!-- CSS styles -->
+    <style>
+        :root {
+            --text: #1a0417;
+            --background: #fef6fd;
+            --primary: #781164;
+            --secondary: #ec7c74;
+            --accent: #d3501d;
+            --search: #dedede;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--background);
+            color: var(--text);
+        }
+
+        /* search field styles */
+        #search-field {
+            height: 50px;
+            display: flex;
+            flex-direction: row;
+            margin-top: 50px;
+        }
+
+        input#city {
+            outline: none;
+            width: 250px;
+            border-radius: 5px 0px 0px 5px;
+            border: 1px solid var(--search);
+            background-color: var(--search);
+        }
+
+        #search-error {
+            font-size: 11px;
+            color: var(--accent);
+            padding: 1px;
+            margin-left: 1px;
+        }
+
+        button#search-button, 
+        input#city {
+            padding: 5px;
+        }
+
+        button#search-button {
+            cursor: pointer;
+            background-color: var(--text);
+            color: antiquewhite;
+            border-radius: 0px 5px 5px 0px;
+            border: 1px solid var(--text);
+        }
+
+        button#search-button:hover {
+            background-color: rgb(43, 43, 43);
+            border-color: rgb(43, 43, 43);
+        }
+
+        /* result field styles */
+        #results-error {
+            background-color: var(--accent);
+            padding: 10px;
+            border-radius: 3px;
+        }
+
+        #search-results {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        span#location { /* location name styles */
+            font-size: 25px;
+            font-weight: bolder;
+            color: var(--text);
+        }
+
+        span#description {
+            color: var(--accent);
+            padding: 2px 2px;
+            border-radius: 5px;
+        }
+
+        #current-temp {
+            font-size: 35px;
+            font-weight: lighter;
+        }
+
+        #temp {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #temp sup {
+            font-size: 25px;
+            font-weight: lighter;
+        }
+
+        table#search-results td{
+            padding: 10px;
+            /* border: 1px solid; */
+        }
+
+        #misc-results {
+            font-size: small;
+            font-weight: light;
+        }
+
+
+    </style>
+    
+</head>
+<body>
+
+    <!-- Search form -->
+    <div id="search-field">
+        <div id="search-bar">
+            <!-- city input -->
+            <input type="text" name="city" id="city" placeholder="Search City" 
+                    minlength="3" onclick="clearError()" required>
+            <div id="city-options"></div> <!-- city options that match user input -->
+            <div id="search-error"></div> <!-- errors in case of input validation failure -->
+        </div>
+        <div> <!-- search button -->
+            <button id="search-button" onclick="handleSearch()">Get Weather</button>
+        </div>
+    </div>
+    
+    <!-- Search results -->
+    <div id="results">
+        <!-- <div id="results-error"></div> -->
+            <table id="search-results">
+                <tr><td 
+                    colspan="3"
+                    style="width: 260px;"
+                    >  
+                    <span id="location">
+                    --</span><br>
+                    <span id="description"></span>
+                </td></tr>
+                <tr>
+                    <td id="temp">
+                        <img id="weather-icon" src="">  <!-- icon -->
+                        <div> <!-- temp -->
+                            <span id="current-temp">--</span>
+                            <sup>&deg;C</sup>
+                        </div>                        
+                    </td>
+                    <td
+                    id="misc-results"
+                    style="border-left: 2px solid var(--accent);"
+                    >
+                        Wind: <span id="wind-speed">--</span> m/s<br>
+                        Humidity: <span id="humidity">--</span>%
+                    </td>
+                </tr>
+            </table>
+    </div>
+    
+
+
+    <!-- JS code -->
+    <script>
+        //initializing variables to be used
+        const searchError = document.getElementById("search-error");
+        const resultErr = document.getElementById("results-error");
+        const weatherKey = '3876c435ee5e4709c70ff25a01d6121c'; // openweather api key
+
+        // checks input validity and returns boolean value  
+        function validateSearch (input) {
+
+            if (!input.checkValidity()) {
+                searchError.innerHTML = input.validationMessage;
+                return false;
+            } 
+            /* else if (/\d/.test(input))    // checking if input has digits    (**not working well)
+            {
+                searchError.innerHTML = "Invalid city name";
+                return false;
+            } */
+            
+            return true;
+        }
+        
+        //clear all input errors shown, when user clicks input field    (**working)
+        function clearError() {
+            searchError.innerHTML = "";
+        }
+
+        // triggering search
+        const city = document.getElementById("city"); // catching user input
+        const button = document.getElementById("search-button"); // search button
+
+        city.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                button.click();
+            }
+        })
+
+        
+        //function called by onclick event  (**working)
+            function handleSearch() {
+                
+                if (validateSearch(city)) { // input goes through validation
+                    const validatedCity = city.value.trim();    // input value taken and all white spaces removed
+                    fetchWeather(validatedCity);
+                }
+            }
+    
+        // actual weather search
+            function fetchWeather(city) {
+                const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=${weatherKey}&units=metric`; // open weather API call (specified in metric units)
+                const local = document.getElementById("location");
+                const wicon = document.getElementById("weather-icon");
+                const currentTemp = document.getElementById("current-temp");
+                const desc = document.getElementById("description");
+                const wind = document.getElementById("wind-speed");
+                const hum = document.getElementById("humidity");
+
+                fetch(weatherUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        // variables carrying required data
+                        const cityName= data.name;
+                        const countryCode = data.sys.country;
+
+                        // current weather icon
+                        const iconCode = data.weather[0].icon;
+                        const iconUrl = "http://openweathermap.org/img/w/" + iconCode + ".png";
+
+                        const temp = data.main.temp;
+                        const weather = data.weather[0].description;  // main weather description
+                        const humid = data.main.humidity;
+                        const windSpeed = data.wind.speed;
+
+                        local.innerHTML = cityName + ", " + countryCode;
+                        wicon.setAttribute('src', iconUrl);
+                        currentTemp.innerHTML = Math.round(temp);
+                        desc.innerHTML = weather;
+                        wind.innerHTML = windSpeed;
+                        hum.innerHTML = humid;
+                    })
+                    .catch(error => {
+                        searchError.innerHTML = "City not found.";
+                    })
+            }
+            
+    </script>
+</body>
+</html>
