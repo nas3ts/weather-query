@@ -222,7 +222,7 @@
     
         // actual weather search
             function fetchWeather(city) {
-                const weatherUrl = `https://cors-anywhere.herokuapp.com/https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=${weatherKey}&units=metric``; // open weather API call (specified in metric units)
+                const weatherUrl = `https://cors-anywhere.herokuapp.com/https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=${weatherKey}&units=metric`; // open weather API call (specified in metric units)
                 const local = document.getElementById("location");
                 const wicon = document.getElementById("weather-icon");
                 const currentTemp = document.getElementById("current-temp");
