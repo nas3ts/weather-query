@@ -42,7 +42,7 @@
         //function called by oninput event
             function showCities() {
 
-                if (!city.checkValidity()) { // input goes through validation
+                if (!city.checkValidity()) { // input goes through validation without error output
                     const currentInput = city.value.trim(); // input value taken and all white spaces removed
                     const cityOptions = document.getElementById("city-options");
                     cityOptions.innerHTML = "City Options"; // clearing previous options
