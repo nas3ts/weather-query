@@ -38,6 +38,16 @@
                     fetchWeather(validatedCity);
                 }
             }
+
+        //function called by oninput event
+            function showCities() {
+
+                if (validateSearch(city)) { // input goes through validation
+                    const currentInput = city.value.trim(); // input value taken and all white spaces removed
+                    const cityOptions = document.getElementById("city-options");
+                    cityOptions.innerHTML = "City Options"; // clearing previous options
+                }
+            }
     
         // actual weather search
             function fetchWeather(city) {
@@ -73,6 +83,6 @@
                         hum.innerHTML = humid;
                     })
                     .catch(error => {
-                        searchError.innerHTML = "City not found.";
+                        searchError.innerHTML = "City not found";
                     })
             }
