@@ -16,7 +16,7 @@
         <div id="search-bar">
             <!-- city input -->
             <input type="text" name="city" id="city" placeholder="Search City" 
-                    minlength="3" onclick="clearError()" required>
+                    minlength="3" onclick="clearError()" oninput="showCities()" required>
             <div id="city-options"></div> <!-- city options that match user input -->
             <div id="search-error"></div> <!-- errors in case of input validation failure -->
         </div>
