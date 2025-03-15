@@ -38,7 +38,36 @@
                     fetchWeather(validatedCity);
                 }
             }
-    
+
+        //function called by oninput event
+            function showCities() {
+                const currentInput = city.value.trim(); // input value taken and all white spaces removed
+                const cityOptions = document.getElementById("city-options");
+                cityOptions.innerHTML = ""; // clearing previous options
+
+                if (city.checkValidity()) { // input goes through validation without error output
+                    fetchCities(currentInput); 
+                }
+            }
+  
+            
+        // city search
+            function fetchCities(city) {
+                const limit = 4;
+                const cityUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=${limit}&appid=${weatherKey}`;
+                const cities = document.getElementById("city-options");
+
+                fetch(cityUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        const citySuggestions = data.map(city => `${city.name}, ${city.country}`);
+                        cities.innerHTML = citySuggestions.join("<br>");
+                    })
+                    .catch(error => {
+                        // searchError.innerHTML = "City not found";
+                    })
+            }
+
         // actual weather search
             function fetchWeather(city) {
                 const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=${weatherKey}&units=metric`; // open weather API call (specified in metric units)
@@ -73,6 +102,6 @@
                         hum.innerHTML = humid;
                     })
                     .catch(error => {
-                        searchError.innerHTML = "City not found.";
+                        searchError.innerHTML = "City not found";
                     })
             }
